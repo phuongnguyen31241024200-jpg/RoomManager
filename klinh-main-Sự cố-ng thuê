@@ -1,0 +1,229 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+
+//Lớp Main - Giao diện chính của hệ thống RoomManager (Dành cho Người thuê)
+//Chức năng: Quản lý điều hướng, hiển thị Sidebar và các màn hình chức năng.
+
+public class Main extends JFrame {
+
+    // KHAI BÁO HẰNG SỐ GIAO DIỆN (THEME)
+    private final String CUTE_FONT = "Segoe UI";
+    private final Color PRIMARY_PINK = new Color(255, 110, 157);
+    private final Color TEXT_GRAY = new Color(120, 120, 120);
+    private final Color DARK_BLACK = new Color(50, 50, 50);
+    private final Color SIDEBAR_BG = Color.WHITE;
+    private final Color BORDER_COLOR = new Color(245, 245, 245);
+
+    public Main() {
+        initConfiguration();
+        setupLayout();
+    }
+
+    //Cấu hình các thông số cơ bản của cửa sổ
+
+    private void initConfiguration() {
+        setTitle("RoomManager - Hệ thống quản lý phòng trọ");
+        setSize(1200, 800);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+    }
+
+    //Thiết lập bố cục tổng thể (Sidebar + Content)
+
+    private void setupLayout() {
+        // Khởi tạo Sidebar
+        add(createSidebar(), BorderLayout.WEST);
+
+        // Mặc định hiển thị giao diện "Sự cố" ở vùng trung tâm
+        add(new TenantIssue(), BorderLayout.CENTER);
+    }
+
+    //Tạo thanh điều hướng Sidebar
+
+    private JPanel createSidebar() {
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setPreferredSize(new Dimension(260, 800));
+        sidebar.setBackground(SIDEBAR_BG);
+        sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, BORDER_COLOR));
+
+        // 1. Logo và tiêu đề ứng dụng
+        sidebar.add(Box.createVerticalStrut(40));
+        sidebar.add(createLogoSection());
+
+        // 2. Danh sách Menu chức năng
+        sidebar.add(Box.createVerticalStrut(50));
+        String[] menuItems = {"Trang chủ", "Hóa đơn", "Sự cố", "Thông báo", "Tài khoản"};
+        for (String item : menuItems) {
+            sidebar.add(createMenuWrapper(item, item.equals("Sự cố")));
+            sidebar.add(Box.createVerticalStrut(8));
+        }
+
+        // 3. Thông tin người dùng và Đăng xuất (Đặt ở cuối Sidebar)
+        sidebar.add(Box.createVerticalGlue());
+        sidebar.add(createUserInfoSection());
+        sidebar.add(Box.createVerticalStrut(40));
+
+        return sidebar;
+    }
+
+    //Vẽ Logo Icon và tên thương hiệu
+
+    private JPanel createLogoSection() {
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.X_AXIS));
+        wrapper.setOpaque(false);
+        wrapper.setMaximumSize(new Dimension(260, 60));
+
+        // Vẽ biểu tượng ngôi nhà cách điệu
+        JPanel iconHome = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(PRIMARY_PINK);
+                g2.fillRoundRect(0, 0, 40, 40, 18, 18);
+                g2.setColor(Color.WHITE);
+                g2.setStroke(new BasicStroke(2));
+                g2.drawLine(12, 22, 20, 14); g2.drawLine(20, 14, 28, 22);
+                g2.drawRect(15, 22, 10, 7);
+                g2.dispose();
+            }
+        };
+        iconHome.setPreferredSize(new Dimension(40, 40));
+        iconHome.setOpaque(false);
+
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setOpaque(false);
+
+        JLabel lblRoom = new JLabel("RoomManager");
+        lblRoom.setFont(new Font(CUTE_FONT, Font.BOLD, 18));
+        lblRoom.setForeground(DARK_BLACK);
+
+        JLabel lblRole = new JLabel("Người thuê");
+        lblRole.setFont(new Font(CUTE_FONT, Font.PLAIN, 13));
+        lblRole.setForeground(TEXT_GRAY);
+
+        textPanel.add(lblRoom);
+        textPanel.add(lblRole);
+
+        wrapper.add(Box.createHorizontalGlue());
+        wrapper.add(iconHome);
+        wrapper.add(Box.createHorizontalStrut(10));
+        wrapper.add(textPanel);
+        wrapper.add(Box.createHorizontalGlue());
+
+        return wrapper;
+    }
+
+    //Tạo khối chứa nút menu để căn giữa Sidebar
+
+    private JPanel createMenuWrapper(String text, boolean isActive) {
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.X_AXIS));
+        wrapper.setOpaque(false);
+        wrapper.setMaximumSize(new Dimension(260, 50));
+
+        JButton btn = createMenuButton(text, isActive, 25);
+
+        wrapper.add(Box.createHorizontalGlue());
+        wrapper.add(btn);
+        wrapper.add(Box.createHorizontalGlue());
+        return wrapper;
+    }
+
+    //Tùy chỉnh nút bấm Menu với hiệu ứng bo góc
+
+    private JButton createMenuButton(String text, boolean isActive, int radius) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                if (isActive) {
+                    g2.setColor(PRIMARY_PINK);
+                    g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+                    g2.setColor(Color.WHITE);
+                } else {
+                    g2.setColor(TEXT_GRAY);
+                }
+                FontMetrics fm = g2.getFontMetrics();
+                int x = (getWidth() - fm.stringWidth(getText())) / 2;
+                int y = (getHeight() + fm.getAscent()) / 2 - 2;
+                g2.setFont(getFont());
+                g2.drawString(getText(), x, y);
+                g2.dispose();
+            }
+        };
+        btn.setPreferredSize(new Dimension(180, 45));
+        btn.setMaximumSize(new Dimension(180, 45));
+        btn.setFont(new Font(CUTE_FONT, isActive ? Font.BOLD : Font.PLAIN, 15));
+        btn.setContentAreaFilled(false);
+        btn.setBorderPainted(false);
+        btn.setFocusPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    //Tạo phần hiển thị thông tin user và nút Đăng xuất
+
+    private JPanel createUserInfoSection() {
+        JPanel userPanel = new JPanel();
+        userPanel.setLayout(new BoxLayout(userPanel, BoxLayout.Y_AXIS));
+        userPanel.setOpaque(false);
+
+        JLabel uName = new JLabel("Trần Thị B");
+        uName.setFont(new Font(CUTE_FONT, Font.BOLD, 15));
+        uName.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel uPhone = new JLabel("0345 284 756");
+        uPhone.setFont(new Font(CUTE_FONT, Font.PLAIN, 12));
+        uPhone.setForeground(TEXT_GRAY);
+        uPhone.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JButton btnLogout = new JButton("Đăng xuất");
+        btnLogout.setFont(new Font(CUTE_FONT, Font.BOLD, 14));
+        btnLogout.setForeground(new Color(255, 115, 115));
+        btnLogout.setContentAreaFilled(false);
+        btnLogout.setBorderPainted(false);
+        btnLogout.setFocusPainted(false);
+        btnLogout.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnLogout.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnLogout.addActionListener(e -> handleLogout());
+
+        userPanel.add(uName);
+        userPanel.add(uPhone);
+        userPanel.add(Box.createVerticalStrut(10));
+        userPanel.add(btnLogout);
+
+        return userPanel;
+    }
+
+    //Xử lý logic khi nhấn Đăng xuất
+
+    private void handleLogout() {
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn đăng xuất không?",
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE
+        );
+        if (confirm == JOptionPane.YES_OPTION) {
+            this.dispose();
+            System.out.println("User logged out.");
+        }
+    }
+
+    public static void main(String[] args) {
+        // Thiết lập giao diện theo chuẩn hệ điều hành
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {}
+
+        SwingUtilities.invokeLater(() -> new Main().setVisible(true));
+    }
+}
