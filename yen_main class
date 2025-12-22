@@ -1,0 +1,46 @@
+import javax.swing.*;
+import java.awt.*;
+
+public class Main extends JFrame {
+    private JPanel cardPanel;
+    private CardLayout cardLayout;
+    private SidebarComponent sidebar;
+
+    public Main() {
+        setTitle("Hệ thống Quản lý Phòng trọ");
+        setSize(1300, 850);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        // 1. Cấu hình CardLayout cho nội dung chính
+        cardLayout = new CardLayout();
+        cardPanel = new JPanel(cardLayout);
+
+        // 2. Khởi tạo các màn hình (Đảm bảo class Contract và SuCoView đã tồn tại)
+        SuCoView suCoView = new SuCoView(this);
+        ContractView contractView = new ContractView(this);
+        cardPanel.add(contractView, "HopDong");
+
+        // 3. Thêm vào CardPanel với định danh (ID)
+        cardPanel.add(suCoView, "SuCo");
+        cardPanel.add(contractView, "HopDong");
+
+        // 4. Khởi tạo Sidebar (Mặc định tô đậm mục "Sự cố")
+        sidebar = new SidebarComponent(this, "Sự cố");
+
+        // 5. Bố cục tổng thể
+        setLayout(new BorderLayout());
+        add(sidebar, BorderLayout.WEST);
+        add(cardPanel, BorderLayout.CENTER);
+    }
+
+    // Hàm để các class con gọi khi muốn chuyển màn hình
+    public void showView(String viewName) {
+        cardLayout.show(cardPanel, viewName);
+    }
+
+    public static void main(String[] args) {
+        try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); } catch (Exception e) {}
+        SwingUtilities.invokeLater(() -> new Main().setVisible(true));
+    }
+}
